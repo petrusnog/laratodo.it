@@ -1,100 +1,60 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-
-defineProps({
-    canResetPassword: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
-});
+import AuthLayout from '@/Layouts/AuthLayout.vue';
+import { useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { errorMessages } from 'vue/compiler-sfc';
 
 const form = useForm({
     email: '',
     password: '',
-    remember: false,
-});
+    processing: false
+})
+
+const errorMessage = ref(null)
 
 const submit = () => {
     form.post(route('login'), {
         onFinish: () => form.reset('password'),
-    });
-};
+        onError: () => {
+            errorMessage.value = form.errors.email
+        }
+    })
+}
+
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Log in" />
-
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-            {{ status }}
+    <AuthLayout>
+        <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 my-4 rounded relative" role="alert">
+            {{ errorMessage }}
         </div>
-
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
+        <!-- Formulário -->
+        <form action="#" @submit.prevent="submit()">
+            <!-- Email -->
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-1">Email</label>
+                <input v-model="form.email" type="email" required
+                    class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300 focus:outline-none" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
+            <!-- Senha -->
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-1">Password</label>
+                <input v-model="form.password" type="password" required
+                    class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300 focus:outline-none" />
             </div>
 
-            <div class="mt-4 block">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
-                    >
-                </label>
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                    Forgot your password?
-                </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Log in
-                </PrimaryButton>
-            </div>
+            <!-- Botão -->
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Entrar
+            </button>
         </form>
-    </GuestLayout>
+
+        <!-- Link registro -->
+        <p class="mt-4 text-center text-sm text-gray-600">
+            Do not have an account?
+            <a href="/register" class="text-blue-600 hover:underline">Register here.</a>
+        </p>
+    </AuthLayout>
 </template>
