@@ -18,6 +18,7 @@ class TaskResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
+            'due_date' => $this->due_date,
             'user' => $this->when($this->relationLoaded('user'), [
                 'id' => $this->user->id ?? null,
                 'name' => $this->user->name ?? null,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StatusResource;
 use App\Http\Resources\TaskResource;
 use App\Models\Status;
 use App\Models\Task;
@@ -20,22 +21,22 @@ class TaskController extends Controller
                              ->with('user', 'status')
                              ->get();
 
-        $statuses = Status::orderBy('id')->pluck('name');
-
+        $statuses = Status::orderBy('id')->get();
+        $statuses = StatusResource::collection($statuses)->toArray(request());
         // Separating tasks by status.
         $grouped_tasks = [];
-        foreach ($statuses as $status_name) {
+        foreach ($statuses as $status) {
             $collection = TaskResource::collection(
-                $tasks->where('status.name', $status_name)
+                $tasks->where('status.name', $status['name'])
             )->toArray(request());
 
             // Normalize array indexes.
-            $grouped_tasks[$status_name] = array_values($collection);
+            $grouped_tasks[$status['name']] = array_values($collection);
         }
 
         return Inertia::render('Tasks/Index', [
             'grouped_tasks' => $grouped_tasks,
-            'statuses' => $statuses->toArray()
+            'statuses' => $statuses
         ]);
     }
 
